@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Report Lapangan Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans antialiased min-h-screen flex flex-col items-center">
+
+    <div class="w-full max-w-md bg-white min-h-screen shadow-lg flex flex-col justify-between relative pb-24">
+        
+        <div class="sticky top-0 bg-slate-50 p-4 border-b border-slate-200 z-10 shadow-sm">
+            <div class="flex justify-between items-center">
+                <h1 class="text-lg font-bold text-slate-800">Daily Report Lapangan</h1>
+                <span id="lock-badge" class="hidden bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full border border-red-300 flex items-center gap-1">
+                    <i class="fa-solid fa-lock text-[10px]"></i> Terkunci
+                </span>
+            </div>
+            <p id="step-title" class="text-xs text-slate-500 mt-1">Langkah 1: Data Umum & Cuaca</p>
+            
+            <div id="locked-banner" class="hidden mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-600 font-medium flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Laporan ini telah dibagikan dan terkunci.</span>
+            </div>
+
+            <div id="progress-bar-container" class="w-full bg-slate-200 h-2 rounded-full mt-3 overflow-hidden">
+                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+            </div>
+        </div>
+
+        <div class="p-4 flex-1">
+            <form id="reportForm" onsubmit="return false;">
+                
+                <div id="step-1" class="step-card space-y-4 fade-in">
+                    <h2 class="text-base font-semibold text-slate-700 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-blue-600"></i> Informasi Proyek & Cuaca
+                    </h2>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
+                        <input type="date" id="reportDate" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Proyek</label>
+                        <input type="text" id="projectName" placeholder="Contoh: Pembangunan Ruko Zone A" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Supervisor / Pelaksana</label>
+                        <input type="text" id="supervisorName" placeholder="Contoh: Ir. Budi Santoso" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-blue-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Cuaca Pagi</label>
+                            <select id="weatherMorning" class="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-blue-500">
+                                <option>Cerah</option>
+                                <option>Berawan</option>
+                                <option>Hujan Ringan</option>
+                                <option>Hujan Lebat</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Cuaca Sore</label>
+                            <select id="weatherAfternoon" class="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-blue-500">
+                                <option>Cerah</option>
+                                <option>Berawan</option>
+                                <option>Hujan Ringan</option>
+                                <option>Hujan Lebat</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-2" class="step-card space-y-4 hidden fade-in">
+                    <h2 class="text-base font-semibold text-slate-700 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-users text-blue-600"></i> Tenaga Kerja & Grade Performa
+                    </h2>
+                    
+                    <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-lg text-[11px] text-amber-800 space-y-0.5">
+                        <p><strong>Panduan Grade Evaluasi:</strong></p>
+                        <p><strong>A</strong> = Pekerjaan bagus & rapi</p>
+                        <p><strong>B</strong> = Ada revisi sebagian kecil titik</p>
+                        <p><strong>C</strong> = Ada revisi banyak titik (tidak bongkar)</p>
+                        <p><strong>D</strong> = Ditolak (Harus bongkar/ulang kerjaan)</p>
+                    </div>
+                    
+                    <div id="manpower-container" class="space-y-3">
+                        <div class="manpower-card bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 relative pr-8">
+                            <div class="grid grid-cols-12 gap-2 items-center">
+                                <input type="text" placeholder="Jenis Pekerja (Tukang Besi)" class="mp-type col-span-6 p-2 border border-slate-300 rounded bg-white text-xs">
+                                <input type="number" placeholder="Jml" class="mp-count col-span-3 p-2 border border-slate-300 rounded bg-white text-xs">
+                                <select class="mp-grade col-span-3 p-2 border border-slate-300 rounded bg-white text-xs font-bold text-blue-600">
+                                    <option value="A">Grade A</option>
+                                    <option value="B">Grade B</option>
+                                    <option value="C">Grade C</option>
+                                    <option value="D">Grade D</option>
+                                </select>
+                            </div>
+                            <div>
+                                <input type="text" placeholder="Alasan / Keterangan performa" class="mp-note w-full p-2 border border-slate-300 rounded bg-white text-xs focus:outline-blue-400">
+                            </div>
+                            <button type="button" class="btn-delete absolute right-2 top-3 text-red-500 hover:text-red-700 font-bold px-1 text-sm">✕</button>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btn-add-manpower" class="w-full py-2.5 border-2 border-dashed border-blue-400 text-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-50 transition">
+                        + Tambah Kategori Pekerja
+                    </button>
+                </div>
+
+                <div id="step-3" class="step-card space-y-4 hidden fade-in">
+                    <h2 class="text-base font-semibold text-slate-700 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-blue-600"></i> Log Material Proyek
+                    </h2>
+                    <div id="material-container" class="space-y-3">
+                        <div class="material-card bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 relative pr-8">
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="text" placeholder="Nama Material (Semen)" class="mat-name col-span-2 p-2 border border-slate-300 rounded bg-white text-xs">
+                                <input type="text" placeholder="Satuan (Sak)" class="mat-unit col-span-1 p-2 border border-slate-300 rounded bg-white text-xs">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" placeholder="Masuk" class="mat-in p-2 border border-slate-300 rounded bg-white text-xs">
+                                <input type="number" placeholder="Terpakai" class="mat-out p-2 border border-slate-300 rounded bg-white text-xs">
+                            </div>
+                            <button type="button" class="btn-delete absolute right-2 top-3 text-red-500 hover:text-red-700 font-bold px-1 text-sm">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" id="btn-add-material" class="w-full py-2.5 border-2 border-dashed border-green-500 text-green-600 rounded-lg text-xs font-semibold hover:bg-green-50 transition">
+                        + Tambah Log Material
+                    </button>
+                </div>
+
+                <div id="step-4" class="step-card space-y-4 hidden fade-in">
+                    <h2 class="text-base font-semibold text-slate-700 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-blue-600"></i> Foto Dokumentasi
+                    </h2>
+                    <p class="text-xs text-slate-400">Jepret foto item pekerjaan lalu isi deskripsi keterangannya.</p>
+                    
+                    <div id="upload-box" class="w-full">
+                        <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition">
+                            <div class="flex flex-col items-center justify-center pt-4 pb-4">
+                                <i class="fa-solid fa-camera text-2xl text-slate-400 mb-1"></i>
+                                <p class="text-xs font-semibold text-slate-600">Ambil Foto Lapangan</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Kamera otomatis aktif di HP</p>
+                            </div>
+                            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+                        </label>
+                    </div>
+
+                    <div id="photo-preview-grid" class="grid grid-cols-2 gap-3 mt-4"></div>
+                </div>
+
+                <div id="step-5" class="step-card space-y-4 hidden fade-in">
+                    <h2 class="text-base font-semibold text-slate-700 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-blue-600"></i> Aktivitas & Catatan
+                    </h2>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pekerjaan Hari Ini</label>
+                        <textarea id="activities" rows="4" placeholder="Contoh: Pengecoran lantai 2 selesai..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs bg-slate-50 focus:bg-white focus:outline-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kendala Lapangan</label>
+                        <textarea id="issues" rows="2" placeholder="Contoh: Hujan deras jam 14.00..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs bg-slate-50 focus:bg-white focus:outline-blue-500"></textarea>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 flex gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <button id="btn-prev" type="button" class="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-semibold text-xs text-center transition hidden select-none">
+                Kembali
+            </button>
+            <button id="btn-next" type="button" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs text-center transition select-none flex items-center justify-center gap-2">
+                Selanjutnya
+            </button>
+            <button id="btn-share" type="button" class="hidden flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-xs text-center transition shadow-md select-none flex items-center justify-center gap-2">
+                <i class="fa-solid fa-share-nodes"></i> Bagikan & Kunci
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set Default Tanggal Hari Ini
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('reportDate').value = today;
+
+            var currentStep = 1;
+            var totalSteps = 5;
+            var isLocked = false;
+
+            var stepTitles = {
+                1: "Langkah 1: Data Umum & Cuaca",
+                2: "Langkah 2: Tenaga Kerja & Grade Performa",
+                3: "Langkah 3: Log Material Proyek",
+                4: "Langkah 4: Foto Dokumentasi",
+                5: "Langkah 5: Aktivitas & Catatan"
+            };
+
+            var btnPrev = document.getElementById('btn-prev');
+            var btnNext = document.getElementById('btn-next');
+            var btnShare = document.getElementById('btn-share');
+            var btnAddManpower = document.getElementById('btn-add-manpower');
+            var btnAddMaterial = document.getElementById('btn-add-material');
+            var cameraInput = document.getElementById('cameraInput');
+
+            function changeStep(direction) {
+                document.getElementById('step-' + currentStep).classList.add('hidden');
+                currentStep += direction;
+                document.getElementById('step-' + currentStep).classList.remove('hidden');
+
+                document.getElementById('step-title').innerText = stepTitles[currentStep];
+                document.getElementById('progress-bar').style.width = ((currentStep / totalSteps) * 100) + '%';
+
+                if (currentStep === 1) {
+                    btnPrev.classList.add('hidden');
+                } else {
+                    btnPrev.classList.remove('hidden');
+                }
+
+                if (currentStep === totalSteps) {
+                    btnNext.classList.add('hidden');
+                    btnShare.classList.remove('hidden');
+                    if (isLocked) {
+                        btnShare.innerHTML = '<i class="fa-solid fa-lock"></i> Laporan Terkunci';
+                        btnShare.className = "flex-1 py-3 bg-slate-400 text-white rounded-lg font-semibold text-xs text-center cursor-not-allowed flex items-center justify-center gap-2";
+                    }
+                } else {
+                    btnNext.classList.remove('hidden');
+                    btnShare.classList.add('hidden');
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // NAVIGASI TOMBOL
+            btnNext.addEventListener('click', function() {
+                changeStep(1);
+            });
+
+            btnPrev.addEventListener('click', function() {
+                changeStep(-1);
+            });
+
+            btnShare.addEventListener('click', function() {
+                if (!isLocked) {
+                    shareReportAndLock();
+                }
+            });
+
+            // TAMBAH PEKERJA
+            btnAddManpower.addEventListener('click', function() {
+                if (isLocked) return;
+                var container = document.getElementById('manpower-container');
+                var newCard = document.createElement('div');
+                newCard.className = "manpower-card bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 relative pr-8";
+                newCard.innerHTML = 
+                    '<div class="grid grid-cols-12 gap-2 items-center">' +
+                        '<input type="text" placeholder="Jenis Pekerja" class="mp-type col-span-6 p-2 border border-slate-300 rounded bg-white text-xs">' +
+                        '<input type="number" placeholder="Jml" class="mp-count col-span-3 p-2 border border-slate-300 rounded bg-white text-xs">' +
+                        '<select class="mp-grade col-span-3 p-2 border border-slate-300 rounded bg-white text-xs font-bold text-blue-600">' +
+                            '<option value="A">Grade A</option>' +
+                            '<option value="B">Grade B</option>' +
+                            '<option value="C">Grade C</option>' +
+                            '<option value="D">Grade D</option>' +
+                        '</select>' +
+                    '</div>' +
+                    '<div>' +
+                        '<input type="text" placeholder="Alasan / Keterangan performa" class="mp-note w-full p-2 border border-slate-300 rounded bg-white text-xs focus:outline-blue-400">' +
+                    '</div>' +
+                    '<button type="button" class="btn-delete absolute right-2 top-3 text-red-500 hover:text-red-700 font-bold px-1 text-sm">✕</button>';
+                container.appendChild(newCard);
+            });
+
+            // TAMBAH MATERIAL
+            btnAddMaterial.addEventListener('click', function() {
+                if (isLocked) return;
+                var container = document.getElementById('material-container');
+                var newCard = document.createElement('div');
+                newCard.className = "material-card bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 relative pr-8";
+                newCard.innerHTML = 
+                    '<div class="grid grid-cols-3 gap-2">' +
+                        '<input type="text" placeholder="Nama Material" class="mat-name col-span-2 p-2 border border-slate-300 rounded bg-white text-xs">' +
+                        '<input type="text" placeholder="Satuan" class="mat-unit col-span-1 p-2 border border-slate-300 rounded bg-white text-xs">' +
+                    '</div>' +
+                    '<div class="grid grid-cols-2 gap-2">' +
+                        '<input type="number" placeholder="Masuk" class="mat-in p-2 border border-slate-300 rounded bg-white text-xs">' +
+                        '<input type="number" placeholder="Terpakai" class="mat-out p-2 border border-slate-300 rounded bg-white text-xs">' +
+                    '</div>' +
+                    '<button type="button" class="btn-delete absolute right-2 top-3 text-red-500 hover:text-red-700 font-bold px-1 text-sm">✕</button>';
+                container.appendChild(newCard);
+            });
+
+            // HAPUS BARIS DELEGATION
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('btn-delete')) {
+                    if (isLocked) return;
+                    var card = e.target.closest('.manpower-card, .material-card, .photo-card');
+                    if (card) {
+                        card.remove();
+                    }
+                }
+            });
+
+            // UNGGAH FOTO & PREVIEW
+            cameraInput.addEventListener('change', function() {
+                if (isLocked) return;
+                if (this.files && this.files[0]) {
+                    var file = this.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var grid = document.getElementById('photo-preview-grid');
+                        var card = document.createElement('div');
+                        card.className = "photo-card bg-slate-50 border border-slate-200 rounded-lg overflow-hidden relative shadow-sm flex flex-col justify-between";
+                        card.innerHTML = 
+                            '<img src="' + e.target.result + '" class="w-full h-24 object-cover">' +
+                            '<div class="p-2 bg-white space-y-1">' +
+                                '<label class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Deskripsi Pekerjaan</label>' +
+                                '<input type="text" placeholder="Deskripsi foto" class="photo-desc w-full p-1.5 text-[11px] border border-slate-200 rounded focus:outline-blue-400 bg-slate-50">' +
+                            '</div>' +
+                            '<button type="button" class="btn-delete absolute top-1 right-1 bg-red-600 text-white font-bold w-5 h-5 text-xs rounded-full flex items-center justify-center shadow">✕</button>';
+                        grid.appendChild(card);
+                        cameraInput.value = '';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // BAGIKAN & KUNCI LAPORAN
+            async function shareReportAndLock() {
+                var date = document.getElementById('reportDate').value || "-";
+                var projName = document.getElementById('projectName').value || "Proyek Tanpa Nama";
+                var supervisor = document.getElementById('supervisorName').value || "-";
+                var weatherM = document.getElementById('weatherMorning').value;
+                var weatherA = document.getElementById('weatherAfternoon').value;
+                var activities = document.getElementById('activities').value || "-";
+                var issues = document.getElementById('issues').value || "Nihil";
+
+                // Data Manpower
+                var manpowerCards = document.querySelectorAll('.manpower-card');
+                var manpowerText = "";
+                for (var i = 0; i < manpowerCards.length; i++) {
+                    var card = manpowerCards[i];
+                    var elType = card.querySelector('.mp-type');
+                    var elCount = card.querySelector('.mp-count');
+                    var elGrade = card.querySelector('.mp-grade');
+                    var elNote = card.querySelector('.mp-note');
+
+                    var type = elType ? elType.value : "Pekerja";
+                    var count = elCount ? elCount.value : "0";
+                    var grade = elGrade ? elGrade.value : "A";
+                    var note = elNote ? elNote.value : "";
+                    manpowerText += (i + 1) + ". *" + type + "* (" + count + " orang) - Grade *" + grade + "*\n   Ket: " + (note || "Tidak ada catatan") + "\n";
+                }
+
+                // Data Material
+                var materialCards = document.querySelectorAll('.material-card');
+                var materialText = "";
+                for (var j = 0; j < materialCards.length; j++) {
+                    var mCard = materialCards[j];
+                    var elName = mCard.querySelector('.mat-name');
+                    var elUnit = mCard.querySelector('.mat-unit');
+                    var elIn = mCard.querySelector('.mat-in');
+                    var elOut = mCard.querySelector('.mat-out');
+
+                    var name = elName ? elName.value : "Material";
+                    var unit = elUnit ? elUnit.value : "unit";
+                    var matIn = elIn ? elIn.value : "0";
+                    var matOut = elOut ? elOut.value : "0";
+                    materialText += (j + 1) + ". *" + name + "*: Masuk (" + matIn + " " + unit + "), Terpakai (" + matOut + " " + unit + ")\n";
+                }
+
+                var photoCards = document.querySelectorAll('.photo-card');
+                var photoText = "";
+                for (var p = 0; p < photoCards.length; p++) {
+                    var pCard = photoCards[p];
+                    var elDesc = pCard.querySelector('.photo-desc');
+                    var desc = elDesc ? elDesc.value : "Foto " + (p + 1);
+                    photoText += (p + 1) + ". " + desc + "\n";
+                }
+
+                var summaryText = "*LAPORAN HARIAN LAPANGAN*\n" +
+                    "Tanggal: " + date + "\n" +
+                    "Proyek: *" + projName + "*\n" +
+                    "Supervisor: *" + supervisor + "*\n" +
+                    "Cuaca: Pagi (" + weatherM + ") | Sore (" + weatherA + ")\n\n" +
+                    "*TENAGA KERJA & PERFORMA:*\n" + (manpowerText || "- Tidak ada data -\n") + "\n" +
+                    "*LOG MATERIAL:*\n" + (materialText || "- Tidak ada data -\n") + "\n" +
+                    "*PEKERJAAN HARI INI:*\n" + activities + "\n\n" +
+                    "*KENDALA LAPANGAN:*\n" + issues + "\n\n" +
+                    "*DOKUMENTASI FOTO (" + photoCards.length + " Foto):*\n" + (photoText || "- Tidak ada foto -\n") + "\n" +
+                    "_Laporan resmi dikirim via Aplikasi Daily Report Lapangan._";
+
+                // Panggil Web Share API (Menu Share HP)
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'Daily Report Lapangan - ' + projName,
+                            text: summaryText
+                        });
+                        lockForm();
+                    } catch (err) {
+                        console.log('User membatalkan share:', err);
+                    }
+                } else {
+                    // Fallback WhatsApp Link
+                    var waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(summaryText);
+                    window.open(waUrl, '_blank');
+                    lockForm();
+                }
+            }
+
+            function lockForm() {
+                isLocked = true;
+
+                var inputs = document.querySelectorAll('input, select, textarea');
+                for (var k = 0; k < inputs.length; k++) {
+                    inputs[k].disabled = true;
+                    inputs[k].classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                }
+
+                var hideBtns = document.querySelectorAll('.btn-delete, #btn-add-manpower, #btn-add-material, #upload-box');
+                for (var l = 0; l < hideBtns.length; l++) {
+                    hideBtns[l].style.display = 'none';
+                }
+
+                document.getElementById('lock-badge').classList.remove('hidden');
+                document.getElementById('locked-banner').classList.remove('hidden');
+
+                btnShare.innerHTML = '<i class="fa-solid fa-lock"></i> Laporan Terkunci';
+                btnShare.className = "flex-1 py-3 bg-slate-400 text-white rounded-lg font-semibold text-xs text-center cursor-not-allowed flex items-center justify-center gap-2";
+            }
+        });
+    </script>
+</body>
+</html>
